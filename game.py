@@ -13,12 +13,21 @@ rxs1 = 260
 rys1 = 575
 rxs2 = 340
 rys2 = 590
-speed = 3      
+speed = 3   
+clicked = False
 direction = random.uniform(0.25,2.75)
 circle_item = canvas.create_oval(x-r, y-r, x+r, y+r, outline='#000000', fill='#00FFFF')
 rectangle_item = canvas.create_rectangle(rxs1,rys1,rxs2,rys2, outline='#000000', fill='#00FFFF')
 
+def moveLeft(event):
+    canvas.move(rectangle_item, -10, 0)
+def moveRight(event):
+    canvas.move(rectangle_item, 10, 0)
+canvas.bind_all("<Left>", moveLeft)
+canvas.bind_all("<Right>", moveRight)
+
 def main():
+    clicked = True
     # Get the slider data and create x- and y-components of velocity
     velocity_x = speed * math.cos(direction) # adj = hyp*cos()
     velocity_y = speed * math.sin(direction) # opp = hyp*sin()
@@ -45,13 +54,11 @@ def main():
             velocity_y = speed * math.sin(direction)
             canvas.move(circle_item, velocity_x*2, velocity_y*2)
             sleep(.0075)
-    pointerxpos = root.winfo_pointerx() - root.winfo_rootx()
-    xdistance = math.sqrt((rx1 - canvas.canvasx(pointerxpos,gridspacing = None))**2)
-    if(rx1 > canvas.canvasx(pointerxpos,gridspacing = None)):
-        xdistance = xdistance * -1
-    canvas.move(rectangle_item, xdistance-40, 0)
     canvas.after(1, main)
 # Call function directly to start the recursion
-main()
+canvas.bind("<Button-1>", main)
+
+if(clicked == True):
+    main()
 
 root.mainloop()
