@@ -14,11 +14,16 @@ rxs1 = 260
 rys1 = 575
 rxs2 = 340
 rys2 = 590
-speed = 3   
-direction = random.uniform(0.25,2.75)
+speed = 5  
+score = 0
+direction = random.uniform((math.pi/6),((5*math.pi)/6))
+while(direction > 1.74533 and direction < 1.39626):
+    direction = random.uniform((math.pi/6),((5*math.pi)/6))
 circle_item = canvas.create_oval(x-r, y-r, x+r, y+r, outline='#000000', fill='#00FFFF')
 rectangle_item = canvas.create_rectangle(rxs1,rys1,rxs2,rys2, outline='#000000', fill='#00FFFF')
 rectangle_items = []
+score_item = canvas.create_text(550, 580, text = "Score = 0")
+
 def start(event):
     genBlocks()
     main()
@@ -28,29 +33,41 @@ def genBlocks():
         y3 = 0
         y4 = 10
         global rectangle_items
-        if(len(rectangle_items) >= 0):
+        if(len(rectangle_items) > 0):
             for index in range (0, len(rectangle_items)-1):
                 canvas.move(rectangle_items[index], 0, 10) 
                 sleep(.001)
-        for num in range(0,4):
-            rectangle_items.append(canvas.create_rectangle(x3,y3,x4,y4, outline='#000000', fill='#00FFFF'))
-            x3, y3, x4, y4 = canvas.coords(rectangle_items[len(rectangle_items)-1])
             while(x4 < 600):
                 xDist = random.randint(30,100)
                 rect=canvas.create_rectangle(x4+3,y3,x4+xDist,y4, outline='#000000', fill='#00FFFF')
                 rectangle_items.append(rect)
                 x3, y3, x4, y4 = canvas.coords(rectangle_items[len(rectangle_items)-1])
                 
-            x3, y3, x4, y4 = canvas.coords(rectangle_items[len(rectangle_items)-1])
-            y3 = y4+10
+            y3 = y4+3
             y4 = y3+10
             x3 = 0
             x4 = random.randint(30,100)
             canvas.update_idletasks()
+        else:
+            for num in range(0,4):
+                rectangle_items.append(canvas.create_rectangle(x3,y3,x4,y4, outline='#000000', fill='#00FFFF'))
+                x3, y3, x4, y4 = canvas.coords(rectangle_items[len(rectangle_items)-1])
+                while(x4 < 600):
+                    xDist = random.randint(30,100)
+                    rect=canvas.create_rectangle(x4+3,y3,x4+xDist,y4, outline='#000000', fill='#00FFFF')
+                    rectangle_items.append(rect)
+                    x3, y3, x4, y4 = canvas.coords(rectangle_items[len(rectangle_items)-1])
+                
+                y3 = y4+3
+                y4 = y3+10
+                x3 = 0
+                x4 = random.randint(30,100)
+                canvas.update_idletasks()
 def main():
     # Get the slider data and create x- and y-components of velocity
     global direction
     global rectangle_items
+    global score
     velocity_x = speed * math.cos(direction) # adj = hyp*cos()
     velocity_y = speed * math.sin(direction) # opp = hyp*sin()
     # Change the canvas item's coordinates
@@ -61,10 +78,15 @@ def main():
     # If crossing left or right of canvas
     if x2>canvas.winfo_width() or x1<0: 
         direction = math.pi - direction # Reverse the x-component of velocity
+        velocity_x = speed * math.cos(direction) # adj = hyp*cos()
+        velocity_y = speed * math.sin(direction) # opp = hyp*sin()
+        canvas.move(circle_item, velocity_x*2, velocity_y*2)
     # If crossing top or bottom of canvas
     if y1<0: 
+        velocity_x = speed * math.cos(direction) # adj = hyp*cos()
+        velocity_y = speed * math.sin(direction) # opp = hyp*sin()
+        canvas.move(circle_item, velocity_x*2, velocity_y*2)
         direction = -1 * direction # Reverse the y-component of velocity
-    
     # Create an event in 1 msec that will be handled by animate(),
     # causing recursion      
     rx1, ry1, rx2, ry2 = canvas.coords(rectangle_item)
@@ -96,6 +118,8 @@ def main():
                     canvas.delete(rectangle_items[index])
                     del rectangle_items[index]
                     direction = direction * -1
+                    score = (int)(score + (x4 - x3))
+                    canvas.itemconfig(score_item, text = "Score = " + str(score))
                     
     canvas.after(5, main)
 # Call function directly to start the recursion
