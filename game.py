@@ -16,6 +16,7 @@ rxs2 = 340
 rys2 = 590
 speed = 5  
 score = 0
+started = 0
 direction = random.uniform((math.pi/6),((5*math.pi)/6))
 while(direction > 1.74533 and direction < 1.39626):
     direction = random.uniform((math.pi/6),((5*math.pi)/6))
@@ -23,31 +24,30 @@ circle_item = canvas.create_oval(x-r, y-r, x+r, y+r, outline='#000000', fill='#0
 rectangle_item = canvas.create_rectangle(rxs1,rys1,rxs2,rys2, outline='#000000', fill='#00FFFF')
 rectangle_items = []
 score_item = canvas.create_text(550, 580, text = "Score = 0")
-
+sched.start()
 def start(event):
-    genBlocks()
-    main()
+    global started
+    if(started == 0):
+        genBlocks()
+        sched.add_job(genBlocks, 'interval', seconds=2)
+        main()
+        started = 1
 def genBlocks():
-        x3 = 0
-        x4 = 30
+        x3 = random.randint(-30,0)
+        x4 = x3+30
         y3 = 0
         y4 = 10
         global rectangle_items
         if(len(rectangle_items) > 0):
-            for index in range (0, len(rectangle_items)-1):
-                canvas.move(rectangle_items[index], 0, 10) 
-                sleep(.001)
+            for index in range (0, len(rectangle_items)):
+                canvas.move(rectangle_items[(len(rectangle_items)-1) - index], 0, 13) 
+                sleep(.005)
+            rectangle_items.append(canvas.create_rectangle(x3,y3,x4,y4, outline='#000000', fill='#00FFFF'))
             while(x4 < 600):
                 xDist = random.randint(30,100)
                 rect=canvas.create_rectangle(x4+3,y3,x4+xDist,y4, outline='#000000', fill='#00FFFF')
                 rectangle_items.append(rect)
                 x3, y3, x4, y4 = canvas.coords(rectangle_items[len(rectangle_items)-1])
-                
-            y3 = y4+3
-            y4 = y3+10
-            x3 = 0
-            x4 = random.randint(30,100)
-            canvas.update_idletasks()
         else:
             for num in range(0,4):
                 rectangle_items.append(canvas.create_rectangle(x3,y3,x4,y4, outline='#000000', fill='#00FFFF'))
@@ -62,7 +62,7 @@ def genBlocks():
                 y4 = y3+10
                 x3 = 0
                 x4 = random.randint(30,100)
-                canvas.update_idletasks()
+            canvas.update_idletasks()
 def main():
     # Get the slider data and create x- and y-components of velocity
     global direction
@@ -111,7 +111,7 @@ def main():
     if(len(rectangle_items) < 0):
             genBlocks()
     else:
-        for index in range(0, ((len(rectangle_items))-1)):
+        for index in range(0, (len(rectangle_items))):
             if(index < len(rectangle_items)):
                 x3, y3, x4, y4 = canvas.coords(rectangle_items[index])
                 if(circle_item in canvas.find_overlapping(x3, y3, x4, y4)):
@@ -124,8 +124,6 @@ def main():
     canvas.after(5, main)
 # Call function directly to start the recursion
 canvas.bind("<Button-1>", start)
-sched.start()
-sched.add_job(genBlocks, 'interval', seconds=10)
 root.mainloop()
 
 sched.shutdown()
