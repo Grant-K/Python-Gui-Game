@@ -2,8 +2,8 @@ import Tkinter
 import math
 import random
 from time import sleep
-from apscheduler.schedulers.background import BackgroundScheduler
-sched = BackgroundScheduler()
+#from apscheduler.schedulers.background import BackgroundScheduler
+#sched = BackgroundScheduler()
 root = Tkinter.Tk()
 canvas = Tkinter.Canvas(root, width=600, height=600, background='#FFFFFF')
 canvas.grid(row=0, rowspan=1, column=1)
@@ -17,6 +17,7 @@ rys2 = 590
 speed = 5  
 score = 0
 started = 0
+msPassed = 0
 direction = random.uniform((math.pi/6),((5*math.pi)/6))
 while(direction > 1.74533 and direction < 1.39626):
     direction = random.uniform((math.pi/6),((5*math.pi)/6))
@@ -24,12 +25,12 @@ circle_item = canvas.create_oval(x-r, y-r, x+r, y+r, outline='#000000', fill='#0
 rectangle_item = canvas.create_rectangle(rxs1,rys1,rxs2,rys2, outline='#000000', fill='#00FFFF')
 rectangle_items = []
 score_item = canvas.create_text(550, 580, text = "Score = 0")
-sched.start()
+#sched.start()
 def start(event):
     global started
     if(started == 0):
         genBlocks()
-        sched.add_job(genBlocks, 'interval', seconds=2)
+        #sched.add_job(genBlocks, 'interval', seconds=2)
         main()
         started = 1
 def genBlocks():
@@ -41,7 +42,7 @@ def genBlocks():
         if(len(rectangle_items) > 0):
             for index in range (0, len(rectangle_items)):
                 canvas.move(rectangle_items[(len(rectangle_items)-1) - index], 0, 13) 
-                sleep(.005)
+                #sleep(.005)
             rectangle_items.append(canvas.create_rectangle(x3,y3,x4,y4, outline='#000000', fill='#00FFFF'))
             while(x4 < 600):
                 xDist = random.randint(30,100)
@@ -68,6 +69,12 @@ def main():
     global direction
     global rectangle_items
     global score
+    global msPassed
+    msPassed += 5
+    if(msPassed%1000 == 0):
+        print(msPassed)
+    if((msPassed/1000) >= 2 and (msPassed%2000) == 0):
+        genBlocks()
     velocity_x = speed * math.cos(direction) # adj = hyp*cos()
     velocity_y = speed * math.sin(direction) # opp = hyp*sin()
     # Change the canvas item's coordinates
@@ -126,4 +133,4 @@ def main():
 canvas.bind("<Button-1>", start)
 root.mainloop()
 
-sched.shutdown()
+#sched.shutdown()
